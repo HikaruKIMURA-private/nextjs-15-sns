@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       const b = JSON.parse(body).data;
       await prisma.user.create({
         data: {
-          clerkId: evt.data.id,
+          id: evt.data.id,
           username: b.username,
           image: b.image_url,
         },
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       const b = JSON.parse(body).data;
       await prisma.user.update({
         where: {
-          clerkId: evt.data.id,
+          id: evt.data.id,
         },
         data: {
           username: b.username,

@@ -1,54 +1,30 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { postTextSchema } from "@/prisma/schema/posts";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import { parseWithZod } from "@conform-to/zod";
 
-type State = {
-  error: string | undefined;
-  success: boolean;
-};
+export async function addPostAction(_: unknown, formData: FormData) {
+  const { userId } = auth();
 
-export async function addPostAction(
-  prevState: State,
-  formData: FormData
-): Promise<State> {
-  try {
-    const { userId } = auth();
+  const submission = parseWithZod(formData, { schema: postTextSchema });
 
-    const post = formData.get("post") as string;
-    const postTextSchema = z
-      .string()
-      .min(1, { message: "ポストを入力してください" })
-      .max(140, { message: "140文字以内で入力してください" });
-
-    const validated = postTextSchema.parse(post);
-
-    if (!userId) {
-      throw new Error("User is not authenticated");
-    }
-
-    await prisma.post.create({
-      data: {
-        content: validated,
-        authorId: userId,
-      },
-    });
-
-    revalidatePath("/");
-    return { success: true, error: undefined };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const res = {
-        error: error.errors.map((e) => e.message).join(", "),
-        success: false,
-      };
-      return res;
-    }
-    if (error instanceof Error) {
-      return { error: error.message, success: false };
-    }
-    return { error: "予期せぬエラーが発生しました", success: false };
+  if (!userId) {
+    throw new Error("User is not authenticated");
   }
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  await prisma.post.create({
+    data: {
+      content: submission.value.post,
+      authorId: userId,
+    },
+  });
+
+  revalidatePath("/");
 }

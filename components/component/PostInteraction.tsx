@@ -53,7 +53,13 @@ export const PostInteraction = ({
     <div className="flex items-center">
       <form action={handleLikeSubmit}>
         <Button variant="ghost" size="icon">
-          <HeartIcon className="h-5 w-5 text-muted-foreground" />
+          <HeartIcon
+            className={`h-5 w-5 ${
+              optimisticLikes.isLiked
+                ? "text-destructive"
+                : "text-muted-foreground"
+            }`}
+          />
         </Button>
       </form>
       <span>{optimisticLikes.likeCount}</span>

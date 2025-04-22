@@ -1,10 +1,19 @@
 import { prisma } from "./prisma";
 
 export async function fetchPosts(userId: string) {
+  const following = await prisma.follow.findMany({
+    where: {
+      followerId: userId,
+    },
+    select: {
+      followingId: true,
+    },
+  });
+  const followingIds = following.map((f) => f.followingId);
   const posts = await prisma.post.findMany({
     where: {
       authorId: {
-        in: [userId],
+        in: [userId, ...followingIds],
       },
     },
     include: {

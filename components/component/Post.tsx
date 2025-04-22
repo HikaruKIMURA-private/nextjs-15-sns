@@ -17,6 +17,7 @@ type PostType = {
   author: {
     name: string | null;
     username: string;
+    image: string | null;
   };
   content: string;
   likes: Like[];
@@ -34,8 +35,11 @@ export const Post = ({ post }: { post: PostType }) => {
     >
       <div className="flex items-center gap-4 mb-4">
         <Avatar className="w-10 h-10">
-          <AvatarImage src="/placeholder-user.jpg" />
-          <AvatarFallback>AC</AvatarFallback>
+          {post.author.image ? (
+            <AvatarImage src={post.author.image} />
+          ) : (
+            <AvatarFallback>AC</AvatarFallback>
+          )}
         </Avatar>
         <div>
           <h3 className="text-lg font-bold">{post.author.name}</h3>

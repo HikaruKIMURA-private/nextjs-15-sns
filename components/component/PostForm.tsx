@@ -19,7 +19,7 @@ export default function PostForm() {
   });
 
   const [form, fields] = useForm({
-    shouldValidate: "onBlur",
+    shouldValidate: "onSubmit",
     lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: postTextSchema });
@@ -27,7 +27,7 @@ export default function PostForm() {
   });
 
   useEffect(() => {
-    if (formRef.current && form.status === "success") {
+    if (formRef.current && form.status !== "error") {
       formRef.current.reset();
     }
   }, [form.status]);
